@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.version = PgLocksMonitor::VERSION
   s.authors = ["pawurb"]
   s.email = ["contact@pawelurbanek.com"]
-  s.summary = %q{ WIP }
-  s.description = %q{ WIP }
+  s.summary = %q{ Observe PostgreSQL database locks obtained by your Ruby application. }
+  s.description = %q{ This gem allows to monitor and notify about PostgreSQL database locks which meet certain criteria. You can report locks which are held for a certain amount of time, or locks which are held by a certain query. }
   s.homepage = "http://github.com/pawurb/pg-locks-monitor"
   s.files = `git ls-files`.split("\n")
   s.test_files = s.files.grep(%r{^(spec)/})
