@@ -19,11 +19,3 @@ port = if pg_version == "11"
   end
 
 ENV["DATABASE_URL"] ||= "postgresql://postgres:secret@localhost:#{port}/pg-locks-monitor-test"
-
-RSpec.configure do |config|
-  config.before(:suite) do
-    RubyPgExtras.connection.exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements;")
-    RubyPgExtras.connection.exec("CREATE EXTENSION IF NOT EXISTS pg_buffercache;")
-    RubyPgExtras.connection.exec("CREATE EXTENSION IF NOT EXISTS sslinfo;")
-  end
-end
