@@ -16,7 +16,7 @@ namespace :pg_locks_monitor do
   end
 
   desc "Check for currently active locks"
-  task :snapshot do
+  task snapshot: :environment do
     PgLocksMonitor.snapshot!
   end
 end
