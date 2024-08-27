@@ -49,7 +49,7 @@ end
 
 ## Testing the notification channels
 
-Before configuring a recurring invocation of the `snapshot!` method, it's recommended to first manually trigger the notification to test the configured channels.
+Before enabling a recurring invocation of the `snapshot!` method, it's recommended to first manually trigger the notification to test the configured channels.
 
 You can generate an _"artificial"_ blocking lock and observe it by running the following code in the Rails console:
 
