@@ -38,9 +38,9 @@ end
 ```
 
 - `locks_limit` - specify the max number of locks to report in a single notification
-- `notify_locks` - observe database locks even if they don't conflict with a different SQL query
+- `monitor_locks` - observe database locks even if they don't conflict with a different SQL query
 - `locks_min_duration_ms` - notify about locks that execeed this duration threshold in milliseconds
-- `notify_blocking` - observe database locks which cause other SQL query to wait from them to release
+- `monitor_blocking` - observe database locks which cause other SQL query to wait from them to release
 - `blocking_min_duration_ms` - notify about blocking locks that execeed this duration threshold in milliseconds
 - `notify_logs` - send notifications about detected locks using `Rails.logger.info` method
 - `notify_slack` - send notifications about detected locks to the configured Slack channel
