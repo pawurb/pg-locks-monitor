@@ -204,7 +204,7 @@ PgLocksMonitor.configure do |config|
   # ...
 
   config.blocking_filter_proc = -> (lock) {
-    lock.fetch("blocked_sql_app").downcase.include?("sidekiq")
+    !lock.fetch("blocked_sql_app").downcase.include?("sidekiq")
   }
 end
 ```
