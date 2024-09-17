@@ -10,7 +10,9 @@ module PgLocksMonitor
         limit: configuration.locks_limit,
       },
     ).select do |lock|
-      (ActiveSupport::Duration.parse(lock.fetch("age")).to_f * 1000) > configuration.locks_min_duration_ms
+      if (age = lock.fetch("age"))
+        (ActiveSupport::Duration.parse(age).to_f * 1000) > configuration.locks_min_duration_ms
+      end
     end
 
     if locks.present? && configuration.monitor_locks
