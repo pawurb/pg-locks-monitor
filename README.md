@@ -36,6 +36,9 @@ PgLocksMonitor.configure do |config|
   config.slack_channel = ""
 
   config.notifier_class = PgLocksMonitor::DefaultNotifier
+
+  config.locks_filter_proc = ->(lock) { true }
+  config.blocking_filter_proc = ->(lock) { true }
 end
 ```
 
@@ -49,7 +52,8 @@ end
 - `slack_webhook_url` - webhook necessary for Slack notification to work
 - `slack_channel` - the name of the target Slack channel
 - `notifier_class` - customizable notifier class
-
+- `locks_filter_proc` - configurable filter to exclude locks based on any custom logic
+- `blocking_filter_proc` - configurable filter to exclude blocking locks based on any custom logic
 
 ## Testing the notification channels
 
@@ -176,6 +180,36 @@ end
 A background job that schedules itself is not the cleanest pattern. So alternatively you can use [sidekiq-cron](https://github.com/sidekiq-cron/sidekiq-cron), [whenever](https://github.com/javan/whenever) or [clockwork](https://github.com/adamwiggins/clockwork) gems to trigger the `PgLocksMonitor.snapshot!` invocation periodically.
 
 A recommended frequency of invocation depends on your app's traffic. From my experience, even 1 minute apart snapshots can provide a lot of valuable data, but it all depends on how often the locks are occurring in your Rails application.
+
+## Filter procs
+
+You can modify `locks_filter_proc` and `blocking_filter_proc` to exclude locks from getting reported. For example, here's how you can report only locks that originated from the Puma server process:
+
+`config/initializers/pg_locks_monitor.rb`
+```ruby
+PgLocksMonitor.configure do |config|
+  # ...
+
+  config.locks_filter_proc = -> (lock) {
+    lock.fetch("application").downcase.include?("puma")
+  }
+end
+```
+
+or exclude blocking locks which are affecting only the Sidekiq process:
+
+`config/initializers/pg_locks_monitor.rb`
+```ruby
+PgLocksMonitor.configure do |config|
+  # ...
+
+  config.blocking_filter_proc = -> (lock) {
+    lock.fetch("blocked_sql_app").downcase.include?("sidekiq")
+  }
+end
+```
+
+Please beware that configuring these procs does not overwrite the min duration settings, i.e., `locks_min_duration_ms` and `blocking_min_duration_ms`.
 
 ## Custom notifier class
 

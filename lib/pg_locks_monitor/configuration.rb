@@ -13,6 +13,8 @@ module PgLocksMonitor
       slack_webhook_url: nil,
       slack_channel: nil,
       notifier_class: PgLocksMonitor::DefaultNotifier,
+      locks_filter_proc: ->(lock) { true },
+      blocking_filter_proc: ->(lock) { true },
     }
 
     attr_accessor *DEFAULT.keys
@@ -43,6 +45,9 @@ PgLocksMonitor.configure do |config|
   config.slack_channel = "#{DEFAULT[:slack_channel]}"
 
   config.notifier_class = #{DEFAULT[:notifier_class]}
+
+  config.locks_filter_proc = ->(lock) { true }
+  config.blocking_filter_proc = ->(lock) { true }
 end
 CONFIG
   end

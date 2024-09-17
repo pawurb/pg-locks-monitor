@@ -6,14 +6,13 @@ require "pg"
 module PgLocksMonitor
   def self.snapshot!
     locks = RailsPgExtras.locks(
-      in_format: :hash, args: {
-        limit: configuration.locks_limit,
-      },
+      in_format: :hash,
     ).select do |lock|
       if (age = lock.fetch("age"))
         (ActiveSupport::Duration.parse(age).to_f * 1000) > configuration.locks_min_duration_ms
       end
-    end
+    end.select(&configuration.locks_filter_proc)
+      .first(configuration.locks_limit)
 
     if locks.present? && configuration.monitor_locks
       configuration.notifier_class.call(locks)
@@ -21,7 +20,8 @@ module PgLocksMonitor
 
     blocking = RailsPgExtras.blocking(in_format: :hash).select do |block|
       (ActiveSupport::Duration.parse(block.fetch("blocking_duration")).to_f * 1000) > configuration.blocking_min_duration_ms
-    end
+    end.select(&configuration.blocking_filter_proc)
+      .first(configuration.locks_limit)
 
     if blocking.present? && configuration.monitor_blocking
       configuration.notifier_class.call(blocking)
