@@ -133,14 +133,18 @@ Here's a sample lock notification:
     "transactionid": null,
     # bool indicating if the lock is already granted
     "granted": true,
-    # type of the acquired lock
+    # mode of the acquired lock
     "mode": "RowExclusiveLock",
     # SQL query which acquired the lock
     "query_snippet": "UPDATE \"users\" SET \"updated_at\" = $1 WHERE \"users\".\"id\" = $2 from/sidekiq_job:UserUpdater/",
     # age of the lock
     "age": "PT0.94945S",
     # app that acquired the lock
-    "application": "bin/sidekiq"
+    "application": "bin/sidekiq",
+    # ID of the database where lock was acquired
+    "database": "84759327",
+    # type of the acquired lock
+    "locktype": "relation",
   },
 ```
 
