@@ -5,7 +5,7 @@ require "pg"
 
 module PgLocksMonitor
   def self.snapshot!
-    locks = RailsPgExtras.locks(
+    locks = RubyPgExtras.locks(
       in_format: :hash,
     ).select do |lock|
       if (age = lock.fetch("age"))
@@ -18,7 +18,7 @@ module PgLocksMonitor
       configuration.notifier_class.call(locks)
     end
 
-    blocking = RailsPgExtras.blocking(in_format: :hash).select do |block|
+    blocking = RubyPgExtras.blocking(in_format: :hash).select do |block|
       (ActiveSupport::Duration.parse(block.fetch("blocking_duration")).to_f * 1000) > configuration.blocking_min_duration_ms
     end.select(&configuration.blocking_filter_proc)
       .first(configuration.locks_limit)
