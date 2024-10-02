@@ -2,6 +2,7 @@
 
 require "uri"
 require "pg"
+require "ruby-pg-extras"
 
 module PgLocksMonitor
   def self.snapshot!
@@ -14,7 +15,7 @@ module PgLocksMonitor
     end.select(&configuration.locks_filter_proc)
       .first(configuration.locks_limit)
 
-    if locks.present? && configuration.monitor_locks
+    if locks.count > 0 && configuration.monitor_locks
       configuration.notifier_class.call(locks)
     end
 
@@ -23,7 +24,7 @@ module PgLocksMonitor
     end.select(&configuration.blocking_filter_proc)
       .first(configuration.locks_limit)
 
-    if blocking.present? && configuration.monitor_blocking
+    if blocking.count > 0 && configuration.monitor_blocking
       configuration.notifier_class.call(blocking)
     end
   end
