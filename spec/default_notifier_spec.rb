@@ -3,14 +3,6 @@
 require "spec_helper"
 
 describe PgLocksMonitor::DefaultNotifier do
-  before do
-    # Mock Rails and its logger
-    Rails = nil
-    logger_double = double("Logger")
-    allow(logger_double).to receive(:info)
-    allow(Rails).to receive(:logger).and_return(logger_double)
-  end
-
   it "requires correct config if Slack notifications enabled" do
     expect {
       PgLocksMonitor::DefaultNotifier.call({})
@@ -24,14 +16,26 @@ describe PgLocksMonitor::DefaultNotifier do
     }.to raise_error(RuntimeError)
   end
 
-  it "sends the Slack notification if enabled" do
-    PgLocksMonitor.configure do |config|
-      config.notify_slack = true
-      config.slack_webhook_url = "https://hooks.slack.com/services/123456789/123456789/123456789"
-      config.slack_channel = "pg-locks-monitor"
+  describe "Slack notification enabled" do
+    before do
+      PgLocksMonitor.configure do |config|
+        config.notify_slack = true
+        config.slack_webhook_url = "https://hooks.slack.com/services/123456789/123456789/123456789"
+        config.slack_channel = "pg-locks-monitor"
+      end
     end
 
-    expect_any_instance_of(Slack::Notifier).to receive(:ping)
-    PgLocksMonitor::DefaultNotifier.call({ locks: "data" })
+    after do
+      PgLocksMonitor.configure do |config|
+        config.notify_slack = false
+        config.slack_webhook_url = nil
+        config.slack_channel = nil
+      end
+    end
+
+    it "sends the Slack notification" do
+      expect_any_instance_of(Slack::Notifier).to receive(:ping)
+      PgLocksMonitor::DefaultNotifier.call({ locks: "data" })
+    end
   end
 end

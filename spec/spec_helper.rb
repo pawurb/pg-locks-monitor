@@ -14,8 +14,35 @@ port = if pg_version == "11"
     "5434"
   elsif pg_version == "14"
     "5435"
+  elsif pg_version == "15"
+    "5436"
+  elsif pg_version == "16"
+    "5437"
   else
     "5432"
   end
 
 ENV["DATABASE_URL"] ||= "postgresql://postgres:secret@localhost:#{port}/pg-locks-monitor-test"
+
+RSpec.configure do |config|
+  Rails = {}
+
+  config.before(:each) do
+    # Mock Rails and its logger
+    logger_double = double("Logger")
+    allow(logger_double).to receive(:info)
+    allow(Rails).to receive(:logger).and_return(logger_double)
+  end
+
+  config.before(:suite) do
+    conn = RubyPgExtras.connection
+    conn.exec("CREATE TABLE IF NOT EXISTS pg_locks_monitor_users (id SERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL);")
+    conn.exec("INSERT INTO pg_locks_monitor_users (name) VALUES ('Alice');")
+    conn.exec("INSERT INTO pg_locks_monitor_users (name) VALUES ('Bob');")
+  end
+
+  config.after(:suite) do
+    conn = RubyPgExtras.connection
+    conn.exec("DROP TABLE IF EXISTS pg_locks_monitor_users;")
+  end
+end

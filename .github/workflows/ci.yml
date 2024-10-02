@@ -48,7 +48,15 @@ jobs:
           docker run --env POSTGRES_USER=postgres \
             --env POSTGRES_DB=pg-locks-monitor-test \
             --env POSTGRES_PASSWORD=secret \
-            -d -p 5436:5432 postgres:15.1-alpine \
+            -d -p 5436:5432 postgres:15.8-alpine \
+            postgres -c shared_preload_libraries=pg_stat_statements
+          sleep 15
+      - name: Run PostgreSQL 16
+        run: |
+          docker run --env POSTGRES_USER=postgres \
+            --env POSTGRES_DB=pg-locks-monitor-test \
+            --env POSTGRES_PASSWORD=secret \
+            -d -p 5437:5432 postgres:16.4-alpine \
             postgres -c shared_preload_libraries=pg_stat_statements
           sleep 15
       - name: Set up Ruby ${{ matrix.ruby-version }}
@@ -73,17 +81,7 @@ jobs:
           POSTGRES_PASSWORD: secret
           DATABASE_URL: postgresql://postgres:secret@localhost:5432/pg-locks-monitor-test
         run: |
-          bundle exec rspec spec/
-      - name: Run tests for PG 11
-        env:
-          PG_VERSION: 11
-          POSTGRES_HOST: localhost
-          POSTGRES_USER: postgres
-          POSTGRES_DB: pg-locks-monitor-test
-          POSTGRES_PASSWORD: secret
-          DATABASE_URL: postgresql://postgres:secret@localhost:5432/pg-locks-monitor-test
-        run: |
-          bundle exec rake test_all
+          bundle exec rspec spec
       - name: Run tests for PG 12
         env:
           PG_VERSION: 12
@@ -93,7 +91,7 @@ jobs:
           POSTGRES_PASSWORD: secret
           DATABASE_URL: postgresql://postgres:secret@localhost:5433/pg-locks-monitor-test
         run: |
-          bundle exec rake test_all
+          bundle exec rspec spec
       - name: Run tests for PG 13
         env:
           PG_VERSION: 13
@@ -103,7 +101,7 @@ jobs:
           POSTGRES_PASSWORD: secret
           DATABASE_URL: postgresql://postgres:secret@localhost:5434/pg-locks-monitor-test
         run: |
-          bundle exec rake test_all
+          bundle exec rspec spec
       - name: Run tests for PG 14
         env:
           PG_VERSION: 14
@@ -113,7 +111,7 @@ jobs:
           POSTGRES_PASSWORD: secret
           DATABASE_URL: postgresql://postgres:secret@localhost:5435/pg-locks-monitor-test
         run: |
-          bundle exec rake test_all
+          bundle exec rspec spec
       - name: Run tests for PG 15
         env:
           PG_VERSION: 15
@@ -123,5 +121,17 @@ jobs:
           POSTGRES_PASSWORD: secret
           DATABASE_URL: postgresql://postgres:secret@localhost:5436/pg-locks-monitor-test
         run: |
-          bundle exec rake test_all
+          bundle exec rspec spec
+      - name: Run tests for PG 16
+        env:
+          PG_VERSION: 15
+          POSTGRES_HOST: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_DB: pg-locks-monitor-test
+          POSTGRES_PASSWORD: secret
+          DATABASE_URL: postgresql://postgres:secret@localhost:5437/pg-locks-monitor-test
+        run: |
+          bundle exec rspec spec
+
+
 
