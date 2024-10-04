@@ -44,22 +44,6 @@ module PgLocksMonitor
   def self.configure
     yield(configuration)
   end
-
-  class DurationHelper
-    require "date"
-
-    def self.parse_to_ms(duration_str)
-      time = DateTime.strptime(duration_str, "%H:%M:%S.%N")
-      hours = time.hour
-      minutes = time.minute
-      seconds = time.second
-      nanoseconds = time.second_fraction * (10 ** 9)
-
-      total_ms = (hours * 3600 * 1000) + (minutes * 60 * 1000) + (seconds * 1000) + (nanoseconds / 1_000_000).to_i
-
-      total_ms
-    end
-  end
 end
 
 require "pg_locks_monitor/default_notifier"
