@@ -35,14 +35,15 @@ RSpec.configure do |config|
   end
 
   config.before(:suite) do
-    conn = RubyPgExtras.connection
-    conn.exec("CREATE TABLE IF NOT EXISTS pg_locks_monitor_users (id SERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL);")
-    conn.exec("INSERT INTO pg_locks_monitor_users (name) VALUES ('Alice');")
-    conn.exec("INSERT INTO pg_locks_monitor_users (name) VALUES ('Bob');")
+    ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
+    conn = RailsPgExtras.connection
+    conn.execute("CREATE TABLE IF NOT EXISTS pg_locks_monitor_users (id SERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL);")
+    conn.execute("INSERT INTO pg_locks_monitor_users (name) VALUES ('Alice');")
+    conn.execute("INSERT INTO pg_locks_monitor_users (name) VALUES ('Bob');")
   end
 
   config.after(:suite) do
-    conn = RubyPgExtras.connection
-    conn.exec("DROP TABLE IF EXISTS pg_locks_monitor_users;")
+    conn = RailsPgExtras.connection
+    conn.execute("DROP TABLE IF EXISTS pg_locks_monitor_users;")
   end
 end

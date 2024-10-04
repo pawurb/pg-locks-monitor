@@ -5,8 +5,8 @@ require "spec_helper"
 describe PgLocksMonitor do
   def spawn_update
     Thread.new do
-      conn = PG.connect(ENV["DATABASE_URL"])
-      conn.exec("
+      conn = RailsPgExtras.connection
+      conn.execute("
         BEGIN;
         UPDATE pg_locks_monitor_users SET name = 'Updated';
         select pg_sleep(2);
@@ -25,6 +25,10 @@ describe PgLocksMonitor do
     it "returns correct locks data" do
       spawn_update
       spawn_update
+      result = PgLocksMonitor.snapshot!
+      expect(result.fetch(:locks).count).to eq(0)
+      expect(result.fetch(:blocking).count).to eq(0)
+
       sleep 1
 
       result = PgLocksMonitor.snapshot!

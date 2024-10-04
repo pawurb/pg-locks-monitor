@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.test_files = s.files.grep(%r{^(spec)/})
   s.require_paths = ["lib"]
   s.license = "MIT"
-  s.add_dependency "ruby-pg-extras"
+  s.add_dependency "rails-pg-extras"
   s.add_dependency "slack-notifier"
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec"

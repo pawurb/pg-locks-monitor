@@ -2,15 +2,16 @@
 
 require "uri"
 require "pg"
-require "ruby-pg-extras"
+require "rails-pg-extras"
+require "active_record"
 
 module PgLocksMonitor
   def self.snapshot!
-    locks = RubyPgExtras.locks(
+    locks = RailsPgExtras.locks(
       in_format: :hash,
     ).select do |lock|
       if (age = lock.fetch("age"))
-        DurationHelper.parse_to_ms(age) > configuration.locks_min_duration_ms
+        (ActiveSupport::Duration.parse(age).to_f * 1000) > configuration.locks_min_duration_ms
       end
     end.select(&configuration.locks_filter_proc)
       .first(configuration.locks_limit)
@@ -19,8 +20,10 @@ module PgLocksMonitor
       configuration.notifier_class.call(locks)
     end
 
-    blocking = RubyPgExtras.blocking(in_format: :hash).select do |block|
-      DurationHelper.parse_to_ms(block.fetch("blocking_duration")) > configuration.blocking_min_duration_ms
+    blocking = RailsPgExtras.blocking(in_format: :hash).select do |block|
+      if (age = block.fetch("blocking_duration"))
+        (ActiveSupport::Duration.parse(age).to_f * 1000) > configuration.locks_min_duration_ms
+      end
     end.select(&configuration.blocking_filter_proc)
       .first(configuration.locks_limit)
 
