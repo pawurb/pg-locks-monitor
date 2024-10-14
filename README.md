@@ -232,9 +232,4 @@ PgLocksMonitor.configure do |config|
 
   config.notifier_class = PgLocksEmailNotifier
 end
-
 ```
-
-## Contributions
-
-This gem is in a very early stage of development so feedback and PRs are welcome.
