@@ -13,7 +13,11 @@ module PgLocksMonitor
       if (age = lock.fetch("age"))
         (ActiveSupport::Duration.parse(age).to_f * 1000) > configuration.locks_min_duration_ms
       end
-    end.select(&configuration.locks_filter_proc)
+    end.select do |lock|
+      # meta locks with duplicate data
+      lock.fetch("locktype") != "virtualxid"
+    end
+      .select(&configuration.locks_filter_proc)
       .first(configuration.locks_limit)
 
     if locks.count > 0 && configuration.monitor_locks
@@ -22,7 +26,7 @@ module PgLocksMonitor
 
     blocking = RailsPgExtras.blocking(in_format: :hash).select do |block|
       if (age = block.fetch("blocking_duration"))
-        (ActiveSupport::Duration.parse(age).to_f * 1000) > configuration.locks_min_duration_ms
+        (ActiveSupport::Duration.parse(age).to_f * 1000) > configuration.blocking_min_duration_ms
       end
     end.select(&configuration.blocking_filter_proc)
       .first(configuration.locks_limit)
